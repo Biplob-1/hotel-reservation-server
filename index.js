@@ -36,6 +36,12 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result);
     })
+    // get available room
+    app.get('/availabileRooms', async(req, res) => {
+        const cursor = roomsCollection.find({availability: true})
+        const result = await cursor.toArray();
+        res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
