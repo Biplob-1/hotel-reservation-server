@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -36,6 +36,19 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result);
     })
+    // get room details by id
+    app.get('/allRooms/:id', async(req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id)}
+        const room = await roomsCollection.findOne(query)
+        res.send(room)
+      } catch (error) {
+        console.error('Room details error:',error)
+        req.status(500).json({error: 'Failed to Read Room Details.'})
+      }
+    })
+
     // get available room
     app.get('/availabileRooms', async(req, res) => {
         const cursor = roomsCollection.find({availability: true})
