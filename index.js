@@ -30,12 +30,17 @@ async function run() {
 
     //rooms collection
     const roomsCollection = client.db('hotelBook').collection('rooms');
+
+    //create bookingroom table/ collection
+    const bookingCollection = client.db('hotelBook').collection('bookings');
+
     //get all room data
     app.get('/allRooms', async(req, res) => {
         const cursor = roomsCollection.find();
         const result = await cursor.toArray();
         res.send(result);
     })
+
     // get room details by id
     app.get('/allRooms/:id', async(req, res) => {
       try {
@@ -56,6 +61,18 @@ async function run() {
         res.send(result)
     })
 
+    // bookings data insert
+    app.post('/roomBookings', async(req, res) =>{
+      try {
+        const booking = req.body;
+        console.log(booking);
+        const result = await bookingCollection.insertOne(booking);
+        res.send(result);
+      } catch (error) {
+        console.error('data insert error:', error);
+      }
+      
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
