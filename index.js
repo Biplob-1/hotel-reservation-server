@@ -71,7 +71,17 @@ async function run() {
       } catch (error) {
         console.error('data insert error:', error);
       }
-      
+    })
+    
+    //get all booked rooms
+    app.get('/bookedRooms', async (req, res) => {
+      try {
+        const cursor = bookingCollection.find()
+        const result = await cursor.toArray()
+        res.send(result);
+      } catch (error) {
+        console.error('booking rooms data fetch error:',error)
+      }
     })
 
     // Send a ping to confirm a successful connection
