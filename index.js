@@ -83,6 +83,51 @@ async function run() {
         console.error('booking rooms data fetch error:',error)
       }
     })
+    //get single booked room by id
+    app.get('/bookedRooms/:id', async (req, res) => {
+      try {
+        const cursor = bookingCollection.find()
+        const result = await cursor.toArray()
+        res.send(result);
+      } catch (error) {
+        console.error('booking rooms data fetch error:',error)
+      }
+    })
+
+    //update booked rooms date
+    app.put('/updateBookedRoom/:id', async (req, res) =>{
+      try {
+        const id = req.params.id;
+        const room = req.body;
+        const filter = {_id: new ObjectId(id)};
+        const option = {upsert : true};
+        const updateRoom = {
+          $set: {
+            date : room.date,
+          }
+        }
+        const result = await bookingCollection.updateOne(filter, updateRoom, option);
+        res.send(result)
+      } catch (error) {
+        console.error('"Error updating Room:", error');
+      }
+    })
+
+    //remove my booked room
+    app.delete('/deleteBookedRoom/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await bookingCollection.deleteOne(query)
+        if (result.deletedCount === 1) {
+          res.json({ message: 'Booking deleted successfully' });
+      } else {
+          res.status(404).json({ error: 'Booking not found' });
+      }
+      } catch (error) {
+        console.error('Error deleting Booking:', error);
+      }
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
