@@ -8,7 +8,8 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", 
+    "https://hotel-booking-biplob-1.netlify.app"],
     credentials: true,
   })
 )
@@ -39,6 +40,9 @@ async function run() {
 
     //create bookingroom table/ collection
     const bookingCollection = client.db('hotelBook').collection('bookings');
+
+    // create reviews table / collection
+    const reviewsCollection = client.db('hotelBook').collection('reviews');
 
     //get all room data
     app.get('/allRooms', async(req, res) => {
@@ -71,11 +75,22 @@ async function run() {
     app.post('/roomBookings', async(req, res) =>{
       try {
         const booking = req.body;
-        console.log(booking);
+        // console.log(booking);
         const result = await bookingCollection.insertOne(booking);
         res.send(result);
       } catch (error) {
         console.error('data insert error:', error);
+      }
+    })
+
+    // review data insert
+    app.post('/allReviews', async(req, res) => {
+      try {
+        const reviews = req.body;
+        const result = await reviewsCollection.insertOne(reviews);
+        res.send(result);
+      } catch (error) {
+        console.error('Review insert error:', error);
       }
     })
     
