@@ -187,6 +187,45 @@ async function run() {
       }
     })
 
+
+    // Update room rating by id
+        app.put('/updateRoomRating/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const { rating } = req.body;
+
+                const filter = { _id: new ObjectId(id) };
+                const room = await roomsCollection.findOne(filter);
+
+                if (!room) {
+                    return res.status(404).json({ error: 'Room not found' });
+                }
+
+                const newTotalRating = (room.totalRating || 0) + rating;
+                const newNumberOfReviews = (room.numberOfReviews || 0) + 1;
+                const newAverageRating = newTotalRating / newNumberOfReviews;
+
+                const updateRoom = {
+                    $set: {
+                        totalRating: newTotalRating,
+                        numberOfReviews: newNumberOfReviews,
+                        averageRating: newAverageRating
+                    }
+                };
+
+                const result = await roomsCollection.updateOne(filter, updateRoom);
+                console.log('review resultttt:', result)
+                if (result.modifiedCount === 1) {
+                    res.json({ message: 'Room rating updated successfully' });
+                } else {
+                    res.status(500).json({ error: 'Failed to update room rating' });
+                }
+            } catch (error) {
+                console.error('Error updating room rating:', error);
+                res.status(500).json({ error: 'Failed to update room rating' });
+            }
+        });
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
