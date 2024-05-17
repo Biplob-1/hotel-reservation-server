@@ -8,8 +8,7 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", 
-    "https://hotel-booking-biplob-1.netlify.app"],
+    origin: ["http://localhost:5173",],
     credentials: true,
   })
 )
@@ -93,7 +92,45 @@ async function run() {
         console.error('Review insert error:', error);
       }
     })
+
+    // get all review
+    app.get('/allReviews', async(req, res) => {
+      try {
+        const cursor = reviewsCollection.find();
+        const result = await cursor.toArray();
+        res.send(result)
+      } catch (error) {
+        console.error('Reviews data fetch error:',error)
+      }
+    })
     
+
+    // Update room availability by id
+    app.put('/updateRoomAvailability/:id', async (req, res) => {
+      try {
+          const id = req.params.id;
+          const update = req.body;
+
+          const filter = { _id: new ObjectId(id) };
+          const updateRoom = {
+              $set: {
+                  availability: update.availability
+              }
+          };
+
+          const result = await roomsCollection.updateOne(filter, updateRoom);
+          if (result.modifiedCount === 1) {
+              res.json({ message: 'Room availability updated successfully' });
+          } else {
+              res.status(404).json({ error: 'Room not found' });
+          }
+      } catch (error) {
+          console.error('Error updating room availability:', error);
+          res.status(500).json({ error: 'Failed to update room availability' });
+      }
+    });
+
+
     //get all booked rooms
     app.get('/bookedRooms', async (req, res) => {
       try {
