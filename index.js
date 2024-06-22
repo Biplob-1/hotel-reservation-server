@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const moment = require('moment-timezone');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -86,6 +87,12 @@ async function run() {
     app.post('/allReviews', async(req, res) => {
       try {
         const reviews = req.body;
+
+        const currentDate = new Date();
+        // const updateCurrentToLocalDate = currentDate.toLocaleString();
+
+        reviews.reviewDateTime = currentDate.toLocaleString();
+
         const result = await reviewsCollection.insertOne(reviews);
         res.send(result);
       } catch (error) {
@@ -94,15 +101,17 @@ async function run() {
     })
 
     // get all review
-    app.get('/allReviews', async(req, res) => {
+    app.get('/allReviews', async (req, res) => {
       try {
-        const cursor = reviewsCollection.find();
+        const cursor = reviewsCollection.find().sort({ reviewDateTime: -1 });
         const result = await cursor.toArray();
-        res.send(result)
+        res.send(result);
       } catch (error) {
-        console.error('Reviews data fetch error:',error)
+        console.error('Reviews data fetch error:', error);
+        res.status(500).send({ message: 'Error fetching reviews data' });
       }
-    })
+    });
+    
     
 
     // Update room availability by id
